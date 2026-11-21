@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>לוח הכפל של מיקה ומרגו</title>
+  <link rel="icon" href="img/margo-face.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- סרגל עליון קבוע -->
+  <header class="topbar">
+    <button class="icon-btn" id="btnHome" title="בית" aria-label="בית">🏠</button>
+    <div class="topbar-title" id="topTitle">הלוח של מיקה</div>
+    <div class="topbar-tools">
+      <button class="icon-btn" id="btnSound" title="צלילים" aria-label="צלילים">🔔</button>
+      <button class="icon-btn" id="btnCalm" title="מצב רגוע (בלי אנימציות)" aria-label="מצב רגוע">🌙</button>
+      <button class="icon-btn" id="btnFull" title="מסך מלא" aria-label="מסך מלא">⛶</button>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- מסך הבית -->
+    <section class="screen active" id="screen-home">
+      <div class="hero">
+        <img class="hero-avatar" src="img/mika-corn-face.jpg" alt="מיקה">
+        <div class="hero-text">
+          <h1>היי מיקה! 👋</h1>
+          <p>על איזה לוח נעבוד היום עם מרגו?</p>
+        </div>
+        <img class="hero-avatar dog" src="img/margo-face.jpg" alt="מרגו">
+      </div>
+
+      <div class="actions">
+        <button class="action-btn" id="btnDaily">
+          <span class="action-emoji">📅</span>
+          <span><b>אתגר יומי</b><small id="dailyStatus">5 שאלות</small></span>
+        </button>
+        <button class="action-btn" id="btnMap">
+          <span class="action-emoji">🗺️</span>
+          <span><b>מפת הכפל</b><small>כל הלוח ביחד</small></span>
+        </button>
+        <button class="action-btn" id="btnAlbum">
+          <span class="action-emoji">📸</span>
+          <span><b>האלבום שלי</b><small id="albumStatus">0 מתוך 10</small></span>
+        </button>
+        <div class="streak" id="streak" title="ימים ברצף">🔥 <b id="streakNum">0</b> ימים ברצף</div>
+      </div>
+
+      <div class="cards" id="cards"></div>
+    </section>
+
+    <!-- לוח אחד בגדול -->
+    <section class="screen" id="screen-focus">
+      <div class="focus-wrap">
+        <button class="arrow" id="focusPrev" aria-label="הלוח הקודם">→</button>
+        <div class="focus-card" id="focusCard"></div>
+        <button class="arrow" id="focusNext" aria-label="הלוח הבא">←</button>
+      </div>
+      <div class="focus-actions">
+        <button class="big-btn soft" id="btnHide">🙈 הסתירי תשובות</button>
+        <button class="big-btn" id="btnPractice">🐶 בואי נתרגל!</button>
+      </div>
+    </section>
+
+    <!-- תרגול -->
+    <section class="screen" id="screen-practice">
+      <div class="practice">
+        <div class="bones" id="bones"></div>
+        <div class="practice-body">
+          <aside class="margo-side">
+            <div class="bubble" id="bubble">את יכולה! 🐾</div>
+            <img src="img/margo-face.jpg" alt="מרגו" class="margo-big" id="margoBig">
+          </aside>
+          <div class="question-area">
+            <div class="question">
+              <span class="eq" dir="ltr" id="question">7 × 8 = ?</span>
+              <button class="icon-btn speak" id="btnSpeak" title="הקראה" aria-label="הקראה">🔊</button>
+            </div>
+            <div class="options" id="options"></div>
+            <div class="hint" id="hint"></div>
+            <button class="big-btn next" id="btnNextQ" hidden>הבא ←</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- סוף סבב -->
+    <section class="screen" id="screen-result">
+      <div class="result">
+        <img class="result-photo" id="resultPhoto" src="img/mika-rome.jpg" alt="מיקה">
+        <div class="result-text">
+          <h2 id="resultTitle">כל הכבוד מיקה!</h2>
+          <p class="result-score" id="resultScore"></p>
+          <div class="result-stars" id="resultStars"></div>
+          <p class="unlock" id="resultUnlock" hidden>📸 נפתחה תמונה חדשה באלבום!</p>
+          <div class="result-actions">
+            <button class="big-btn" id="btnAgain">🔁 עוד סבב</button>
+            <button class="big-btn soft" id="btnResultAlbum" hidden>📸 לאלבום</button>
+            <button class="big-btn soft" id="btnResultHome">🏠 לבית</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- מפת הכפל -->
+    <section class="screen" id="screen-map">
+      <div class="map-info" dir="ltr" id="mapInfo">לחצי על משבצת 👆</div>
+      <div class="map" id="map"></div>
+    </section>
+
+    <!-- אלבום -->
+    <section class="screen" id="screen-album">
+      <h2 class="screen-title">📸 האלבום של מיקה ומרגו</h2>
+      <p class="screen-sub">כל לוח שמסיימים בתרגול עם 8 תשובות נכונות או יותר פותח תמונה חדשה</p>
+      <div class="album" id="album"></div>
+    </section>
+  </main>
+
+  <!-- מרגו מציצה מהפינה -->
+  <img src="img/margo-face.jpg" alt="" class="peek" id="peek" aria-hidden="true">
+
+  <!-- חלונות קופצים -->
+  <div class="modal" id="breakModal" hidden>
+    <div class="modal-box">
+      <img src="img/margo.jpg" alt="מרגו" class="modal-img">
+      <h2>מרגו רוצה הפסקה! 🐾</h2>
+      <p>עבדת יפה! קומי, תשתי קצת מים ותתמתחי.<br>נחזור אחרי זה.</p>
+      <button class="big-btn" id="btnBreakDone">חזרתי! 💪</button>
+    </div>
+  </div>
+
+  <div class="modal" id="photoModal" hidden>
+    <div class="modal-box photo-box">
+      <div id="photoModalContent"></div>
+      <button class="big-btn soft" id="btnPhotoClose">סגירה</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
