@@ -3,51 +3,127 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#bfe9ff">
   <title>לוח הכפל של מיקה ומרגו</title>
   <link rel="icon" href="img/margo-face.jpg">
+  <link rel="apple-touch-icon" href="img/margo-face.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&family=Varela+Round&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- העולם המצויר ברקע -->
+  <div class="world" aria-hidden="true">
+    <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#a8defa"/>
+          <stop offset=".65" stop-color="#e3f6ff"/>
+          <stop offset="1" stop-color="#f4fbff"/>
+        </linearGradient>
+        <radialGradient id="sun" cx=".5" cy=".5" r=".5">
+          <stop offset="0" stop-color="#fff7c2"/>
+          <stop offset=".55" stop-color="#ffe783" stop-opacity=".9"/>
+          <stop offset="1" stop-color="#ffe783" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="hillFar" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#c9eeb0"/><stop offset="1" stop-color="#b3e19a"/>
+        </linearGradient>
+        <linearGradient id="hillMid" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#9edb78"/><stop offset="1" stop-color="#86cc62"/>
+        </linearGradient>
+        <linearGradient id="hillNear" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#7cc95a"/><stop offset="1" stop-color="#66b84a"/>
+        </linearGradient>
+        <g id="tree">
+          <rect x="-5" y="0" width="10" height="34" rx="4" fill="#8a5a3b"/>
+          <circle cx="0" cy="-14" r="26" fill="#3f9a3c"/>
+          <circle cx="-12" cy="-4" r="17" fill="#4aa944"/>
+          <circle cx="10" cy="-24" r="14" fill="#5cbb52"/>
+        </g>
+        <g id="cloud">
+          <ellipse cx="0" cy="0" rx="70" ry="30" fill="#fff"/>
+          <ellipse cx="-40" cy="8" rx="44" ry="24" fill="#fff"/>
+          <ellipse cx="42" cy="10" rx="48" ry="22" fill="#fff"/>
+          <ellipse cx="10" cy="-20" rx="40" ry="28" fill="#fff"/>
+        </g>
+      </defs>
+      <rect width="1440" height="900" fill="url(#sky)"/>
+      <circle cx="1280" cy="130" r="120" fill="url(#sun)"/>
+      <g class="clouds">
+        <g class="cloud c1"><use href="#cloud" x="200" y="140" opacity=".95"/></g>
+        <g class="cloud c2"><use href="#cloud" x="760" y="90" opacity=".8" transform="scale(.8)"/></g>
+        <g class="cloud c3"><use href="#cloud" x="1100" y="260" opacity=".7"/></g>
+      </g>
+      <path d="M0 640 Q 220 520 460 600 T 940 580 T 1440 560 V 900 H 0 Z" fill="url(#hillFar)"/>
+      <path d="M0 720 Q 300 600 620 690 Q 900 760 1180 650 Q 1330 600 1440 640 V 900 H 0 Z" fill="url(#hillMid)"/>
+      <path d="M380 900 Q 520 760 760 740 Q 980 722 1100 680" fill="none" stroke="#f4dc7a" stroke-width="26" stroke-linecap="round" opacity=".85"/>
+      <path d="M0 800 Q 260 720 560 790 Q 860 860 1120 770 Q 1300 710 1440 760 V 900 H 0 Z" fill="url(#hillNear)"/>
+      <use href="#tree" x="120" y="690"/>
+      <use href="#tree" x="190" y="705" transform="translate(30 20) scale(.85)"/>
+      <use href="#tree" x="1240" y="640"/>
+      <use href="#tree" x="1330" y="675"/>
+      <use href="#tree" x="660" y="680" transform="translate(140 140) scale(.8)"/>
+      <use href="#tree" x="960" y="690" transform="translate(100 110) scale(.9)"/>
+    </svg>
+  </div>
+
   <!-- סרגל עליון קבוע -->
   <header class="topbar">
-    <button class="icon-btn" id="btnHome" title="בית" aria-label="בית">🏠</button>
+    <button class="icon-btn" id="btnHome" aria-label="בית" title="בית">
+      <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/></svg>
+    </button>
     <div class="topbar-title" id="topTitle">הלוח של מיקה</div>
+    <div class="level-chip" id="levelChip" title="הרמה שלך">
+      <span class="level-num" id="levelNum">1</span>
+      <span class="level-bar"><span id="levelFill"></span></span>
+    </div>
     <div class="topbar-tools">
-      <button class="icon-btn" id="btnSound" title="צלילים" aria-label="צלילים">🔔</button>
-      <button class="icon-btn" id="btnCalm" title="מצב רגוע (בלי אנימציות)" aria-label="מצב רגוע">🌙</button>
-      <button class="icon-btn" id="btnFull" title="מסך מלא" aria-label="מסך מלא">⛶</button>
+      <button class="icon-btn" id="btnMusic" aria-label="מוזיקה" title="מוזיקה רגועה" aria-pressed="false">
+        <svg viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>
+      </button>
+      <button class="icon-btn" id="btnSound" aria-label="צלילים" title="צלילים" aria-pressed="true">
+        <svg viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7"/><path class="wave" d="M19 5a10 10 0 0 1 0 14"/></svg>
+      </button>
+      <button class="icon-btn" id="btnCalm" aria-label="מצב רגוע" title="מצב רגוע (בלי אנימציות)" aria-pressed="false">
+        <svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+      <button class="icon-btn" id="btnFull" aria-label="מסך מלא" title="מסך מלא">
+        <svg viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>
+      </button>
     </div>
   </header>
 
   <main id="app">
     <!-- מסך הבית -->
     <section class="screen active" id="screen-home">
-      <div class="hero">
-        <img class="hero-avatar" src="img/mika-corn-face.jpg" alt="מיקה">
+      <div class="hero clay">
+        <img class="hero-avatar" src="img/mika-corn-face.jpg" alt="מיקה" width="96" height="96">
         <div class="hero-text">
-          <h1>היי מיקה! 👋</h1>
-          <p>על איזה לוח נעבוד היום עם מרגו?</p>
+          <h1>היי מיקה!</h1>
+          <p class="hero-level"><b id="levelTitle">גורה סקרנית</b> · רמה <b id="levelNum2">1</b></p>
+          <div class="xp"><span id="xpFill"></span></div>
+          <p class="xp-text" id="xpText">0 / 100 נקודות לרמה הבאה</p>
         </div>
-        <img class="hero-avatar dog" src="img/margo-face.jpg" alt="מרגו">
+        <img class="hero-avatar dog" src="img/margo-face.jpg" alt="מרגו" width="96" height="96">
+      </div>
+
+      <div class="daily clay" id="dailyCard">
+        <img class="daily-dog" src="img/margo-face.jpg" alt="" width="70" height="70">
+        <div class="daily-text">
+          <b id="dailyTitle">האתגר של היום</b>
+          <span id="dailySub">מרגו בחרה לך שאלות לפי הרמה שלך</span>
+        </div>
+        <button class="big-btn" id="btnDaily">יאללה!</button>
       </div>
 
       <div class="actions">
-        <button class="action-btn" id="btnDaily">
-          <span class="action-emoji">📅</span>
-          <span><b>אתגר יומי</b><small id="dailyStatus">5 שאלות</small></span>
-        </button>
-        <button class="action-btn" id="btnMap">
-          <span class="action-emoji">🗺️</span>
-          <span><b>מפת הכפל</b><small>כל הלוח ביחד</small></span>
-        </button>
-        <button class="action-btn" id="btnAlbum">
-          <span class="action-emoji">📸</span>
-          <span><b>האלבום שלי</b><small id="albumStatus">0 מתוך 10</small></span>
-        </button>
-        <div class="streak" id="streak" title="ימים ברצף">🔥 <b id="streakNum">0</b> ימים ברצף</div>
+        <button class="pill clay stories-btn" id="btnStories"><span aria-hidden="true">🤸</span> סיפורי כפל</button>
+        <button class="pill clay" id="btnMap"><span aria-hidden="true">🗺️</span> מפת הכפל</button>
+        <button class="pill clay" id="btnAlbum"><span aria-hidden="true">📸</span> האלבום <small id="albumStatus">0/10</small></button>
+        <div class="pill clay streak" title="ימים ברצף"><span aria-hidden="true">🔥</span> <b id="streakNum">0</b> ימים ברצף</div>
+        <div class="pill clay tip" id="tip" hidden></div>
       </div>
 
       <div class="cards" id="cards"></div>
@@ -56,9 +132,9 @@
     <!-- לוח אחד בגדול -->
     <section class="screen" id="screen-focus">
       <div class="focus-wrap">
-        <button class="arrow" id="focusPrev" aria-label="הלוח הקודם">→</button>
-        <div class="focus-card" id="focusCard"></div>
-        <button class="arrow" id="focusNext" aria-label="הלוח הבא">←</button>
+        <button class="arrow clay" id="focusPrev" aria-label="הלוח הקודם">→</button>
+        <div class="focus-card clay" id="focusCard"></div>
+        <button class="arrow clay" id="focusNext" aria-label="הלוח הבא">←</button>
       </div>
       <div class="focus-actions">
         <button class="big-btn soft" id="btnHide">🙈 הסתירי תשובות</button>
@@ -69,19 +145,26 @@
     <!-- תרגול -->
     <section class="screen" id="screen-practice">
       <div class="practice">
-        <div class="bones" id="bones"></div>
+        <div class="bones clay" id="bones"></div>
         <div class="practice-body">
           <aside class="margo-side">
-            <div class="bubble" id="bubble">את יכולה! 🐾</div>
-            <img src="img/margo-face.jpg" alt="מרגו" class="margo-big" id="margoBig">
+            <div class="bubble" id="bubble" aria-live="polite">את יכולה! 🐾</div>
+            <img src="img/margo-face.jpg" alt="מרגו" class="margo-big" id="margoBig" width="190" height="190">
           </aside>
           <div class="question-area">
-            <div class="question">
+            <div class="round-label" id="roundLabel" hidden>סיבוב חזרה על מה שהיה קשה 💪</div>
+            <div class="story clay" id="story" hidden>
+              <p class="story-text" id="storyText"></p>
+              <div class="story-pics" id="storyPics" aria-hidden="true"></div>
+            </div>
+            <div class="question clay">
               <span class="eq" dir="ltr" id="question">7 × 8 = ?</span>
-              <button class="icon-btn speak" id="btnSpeak" title="הקראה" aria-label="הקראה">🔊</button>
+              <button class="icon-btn speak" id="btnSpeak" aria-label="הקראה" title="הקראה">
+                <svg viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+              </button>
             </div>
             <div class="options" id="options"></div>
-            <div class="hint" id="hint"></div>
+            <div class="hint" id="hint" aria-live="polite"></div>
             <button class="big-btn next" id="btnNextQ" hidden>הבא ←</button>
           </div>
         </div>
@@ -92,10 +175,11 @@
     <section class="screen" id="screen-result">
       <div class="result">
         <img class="result-photo" id="resultPhoto" src="img/mika-rome.jpg" alt="מיקה">
-        <div class="result-text">
+        <div class="result-text clay">
           <h2 id="resultTitle">כל הכבוד מיקה!</h2>
           <p class="result-score" id="resultScore"></p>
           <div class="result-stars" id="resultStars"></div>
+          <p class="result-xp" id="resultXp"></p>
           <p class="unlock" id="resultUnlock" hidden>📸 נפתחה תמונה חדשה באלבום!</p>
           <div class="result-actions">
             <button class="big-btn" id="btnAgain">🔁 עוד סבב</button>
@@ -108,24 +192,30 @@
 
     <!-- מפת הכפל -->
     <section class="screen" id="screen-map">
-      <div class="map-info" dir="ltr" id="mapInfo">לחצי על משבצת 👆</div>
-      <div class="map" id="map"></div>
+      <div class="map-head clay">
+        <div class="map-info" dir="ltr" id="mapInfo">לחצי על משבצת</div>
+        <label class="switch"><input type="checkbox" id="mapKnown"> <span>🐾 להראות מה אני כבר יודעת</span></label>
+      </div>
+      <div class="map clay" id="map"></div>
     </section>
 
     <!-- אלבום -->
     <section class="screen" id="screen-album">
-      <h2 class="screen-title">📸 האלבום של מיקה ומרגו</h2>
-      <p class="screen-sub">כל לוח שמסיימים בתרגול עם 8 תשובות נכונות או יותר פותח תמונה חדשה</p>
+      <div class="album-head clay">
+        <h2>📸 האלבום של מיקה ומרגו</h2>
+        <p>כל לוח שמסיימים בתרגול עם 8 תשובות נכונות או יותר פותח תמונה חדשה</p>
+      </div>
       <div class="album" id="album"></div>
     </section>
   </main>
 
   <!-- מרגו מציצה מהפינה -->
   <img src="img/margo-face.jpg" alt="" class="peek" id="peek" aria-hidden="true">
+  <div class="fx" id="fx" aria-hidden="true"></div>
 
-  <!-- חלונות קופצים -->
+  <!-- חלונות -->
   <div class="modal" id="breakModal" hidden>
-    <div class="modal-box">
+    <div class="modal-box clay">
       <img src="img/margo.jpg" alt="מרגו" class="modal-img">
       <h2>מרגו רוצה הפסקה! 🐾</h2>
       <p>עבדת יפה! קומי, תשתי קצת מים ותתמתחי.<br>נחזור אחרי זה.</p>
@@ -133,8 +223,17 @@
     </div>
   </div>
 
+  <div class="modal" id="levelModal" hidden>
+    <div class="modal-box clay">
+      <div class="level-badge" id="levelBadge">2</div>
+      <h2>עלית רמה! 🎉</h2>
+      <p id="levelModalText"></p>
+      <button class="big-btn" id="btnLevelClose">יש! 🐾</button>
+    </div>
+  </div>
+
   <div class="modal" id="photoModal" hidden>
-    <div class="modal-box photo-box">
+    <div class="modal-box clay photo-box">
       <div id="photoModalContent"></div>
       <button class="big-btn soft" id="btnPhotoClose">סגירה</button>
     </div>
