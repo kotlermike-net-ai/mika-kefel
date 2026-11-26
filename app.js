@@ -247,13 +247,51 @@
   }
 
   // ================= מוזיקת רקע רגועה =================
+  // קובץ המנגינה מתנגן בלופ בעוצמה נמוכה, עם כניסה ויציאה הדרגתיות
+  const MUSIC_VOLUME = 0.22;
+  const bgm = new Audio("audio/music.mp3");
+  bgm.loop = true;
+  bgm.preload = "none";
+  bgm.volume = 0;
+  let bgmFailed = false;
+  let fadeTimer = null;
+  bgm.addEventListener("error", () => {
+    bgmFailed = true;
+    if (state.music) startSynth();
+  });
+
+  function fadeTo(target, ms, done) {
+    clearInterval(fadeTimer);
+    const steps = 20, from = bgm.volume;
+    let i = 0;
+    fadeTimer = setInterval(() => {
+      i++;
+      bgm.volume = Math.max(0, Math.min(1, from + (target - from) * (i / steps)));
+      if (i >= steps) { clearInterval(fadeTimer); if (done) done(); }
+    }, ms / steps);
+  }
+
+  function startMusic() {
+    if (bgmFailed) return startSynth();
+    const p = bgm.play();
+    if (p && p.catch) p.catch(() => {});
+    fadeTo(MUSIC_VOLUME, 1500);
+  }
+
+  function stopMusic() {
+    stopSynth();
+    if (bgm.paused) return;
+    fadeTo(0, 700, () => bgm.pause());
+  }
+
+  // ----- מנגינה מסונתזת (גיבוי אם קובץ המוזיקה לא נטען) -----
   // אקורדים רכים (C, Am, F, G) ומנגינה פנטטונית אקראית, בעוצמה נמוכה
   const CHORDS = [[261.6, 329.6, 392], [220, 261.6, 329.6], [174.6, 220, 261.6], [196, 246.9, 293.7]];
   const MELODY = [523.3, 587.3, 659.3, 784, 880];
   const BEAT = 60 / 66;
   let music = { gain: null, timer: null, beat: 0, next: 0 };
 
-  function startMusic() {
+  function startSynth() {
     try {
       const c = ctx();
       if (music.timer) return;
@@ -280,7 +318,7 @@
     }
   }
 
-  function stopMusic() {
+  function stopSynth() {
     if (!music.timer) return;
     clearInterval(music.timer);
     music.timer = null;
@@ -878,7 +916,7 @@
   document.addEventListener("pointerdown", () => { if (state.music) startMusic(); }, { once: true });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) stopMusic();
-    else if (state.music && audioCtx) startMusic();
+    else if (state.music) startMusic();
   });
 
   // ================= מקלדת =================
