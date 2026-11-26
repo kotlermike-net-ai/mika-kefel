@@ -576,7 +576,64 @@ button.pill:active { transform: translateY(2px); box-shadow: var(--clay-press); 
   to { opacity: 1; transform: none; }
 }
 
+.stories-banner {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto 16px;
+  padding: 0;
+  overflow: hidden;
+  transition: transform var(--t-fast) var(--ease-out);
+}
+
+.stories-banner img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 509; object-fit: cover; }
+.stories-banner:hover { transform: translateY(-3px); }
+.stories-banner:active { transform: translateY(2px); box-shadow: var(--clay-press); }
+
+.stories-label {
+  position: absolute;
+  bottom: 12px;
+  right: 50%;
+  transform: translateX(50%);
+  padding: 10px 22px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  font-family: var(--font-head);
+  font-size: 1.3rem;
+  white-space: nowrap;
+  box-shadow: 0 5px 0 var(--primary-dark);
+}
+
+.story-mika {
+  position: absolute;
+  left: -18px;
+  bottom: -14px;
+  width: 120px;
+  height: auto;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.story-mika.hop { animation: hop .8s var(--spring); }
+
+.level-margo {
+  display: block;
+  width: 160px;
+  height: auto;
+  margin: -10px auto 6px;
+  mix-blend-mode: multiply;
+  animation: cartwheel 1.3s var(--ease-out) .2s backwards;
+}
+
+@keyframes cartwheel {
+  from { transform: translateX(160px) rotate(360deg); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
 .story {
+  position: relative;
   width: 100%;
   max-width: 680px;
   padding: 20px 26px;
@@ -586,6 +643,7 @@ button.pill:active { transform: translateY(2px); box-shadow: var(--clay-press); 
 }
 
 .story.swap { animation: swapIn .35s var(--ease-out); }
+.story-text, .story-pics { padding-left: 90px; }
 .story-text { margin: 0 0 14px; font-size: clamp(1.3rem, 2.6vw, 1.75rem); line-height: 1.5; font-weight: 500; }
 
 .story-pics {
@@ -881,6 +939,9 @@ body.calm .peek, body.calm .fx { display: none; }
   .question { padding: 16px 22px; }
   .eq { font-size: 2.8rem; }
   .story { padding: 14px; }
+  .story-mika { width: 70px; left: -8px; bottom: -8px; }
+  .story-text, .story-pics { padding-left: 50px; }
+  .stories-label { font-size: 1rem; padding: 8px 14px; }
   .grp { font-size: 1.15rem; letter-spacing: 0; }
   .opt { font-size: 1.9rem; padding: 16px 0; }
   .focus-card { flex-direction: column; padding: 18px; gap: 12px; }

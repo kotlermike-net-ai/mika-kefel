@@ -654,6 +654,7 @@
       setBubble(quiz.firstTry ? pick(PRAISE) : "יופי, הצלחת! 💜");
       $("hint").innerHTML = "";
       restartAnim($("margoBig"), "nod");
+      if (q.story) restartAnim($("storyMika"), "hop");
       chime();
       $("btnNextQ").hidden = false;
       $("btnNextQ").focus({ preventScroll: true });
@@ -724,7 +725,7 @@
     $("resultTitle").textContent = great ? "כל הכבוד מיקה! 🎉" : "עבודה יפה מיקה! 💜";
     $("resultScore").textContent = `${score} מתוך ${total} בניסיון הראשון`;
     $("resultXp").textContent = `+${quiz.xp + bonus} נקודות ⭐`;
-    $("resultPhoto").src = pick(["img/mika-rome.jpg", "img/mika-corn.jpg"]);
+    $("resultPhoto").src = mode === "stories" ? "img/mika-cartoon.jpg" : pick(["img/mika-rome.jpg", "img/mika-corn.jpg"]);
     $("resultUnlock").hidden = !unlocked;
     $("btnResultAlbum").hidden = !unlocked;
     $("btnAgain").textContent = mode === "daily" ? "🏠 לבית" : "🔁 עוד סבב";
