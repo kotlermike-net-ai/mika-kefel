@@ -132,7 +132,18 @@ h1, h2, .topbar-title, .big-btn, .pill, .daily-text b { font-family: var(--font-
 .icon-btn[aria-pressed="false"] svg { stroke: #9aa3b5; }
 #btnSound[aria-pressed="false"] .wave { display: none; }
 #btnMusic[aria-pressed="true"] { background: #ffe9a8; }
-#btnCalm[aria-pressed="true"] { background: #d9e8ff; }
+#btnCalm[aria-pressed="true"] { background: #d9f2e4; }
+#btnCalm[aria-pressed="true"] svg { stroke: #23935f; }
+#btnCalm .slash { display: none; }
+#btnCalm[aria-pressed="true"] .slash { display: inline; }
+#btnNight[aria-pressed="true"] { background: #2f3a6b; }
+#btnNight[aria-pressed="true"] svg { stroke: #ffe58a; fill: #ffe58a; }
+#btnMusic.playing svg { animation: beat 1.8s ease-in-out infinite; }
+
+@keyframes beat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
 
 .level-chip {
   display: flex;
@@ -888,6 +899,92 @@ button.pill:active { transform: translateY(2px); box-shadow: var(--clay-press); 
 .photo-box { max-width: 640px; }
 .photo-box .ph { width: 100%; max-height: 70vh; object-fit: contain; border-radius: 14px; }
 .photo-box .cap { font-size: 1.4rem; font-weight: 700; margin: 12px 0; }
+
+/* ===== הודעה קטנה ===== */
+.toast {
+  position: fixed;
+  bottom: 22px;
+  right: 50%;
+  transform: translateX(50%);
+  z-index: 70;
+  max-width: min(560px, 92vw);
+  padding: 14px 22px;
+  border-radius: 18px;
+  background: #23304a;
+  color: #fff;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+  cursor: pointer;
+}
+
+.toast[hidden] { display: none; }
+
+.modal-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
+.small-note { font-size: .95rem !important; color: var(--muted); margin-bottom: 0; }
+
+.sync-link {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #e3e6ef;
+  border-radius: 12px;
+  background: #f7f8fc;
+  color: var(--ink);
+  font-size: .9rem;
+}
+
+/* ===== מצב לילה ===== */
+.sky, .day-only, .night-only, .land, .clouds { transition: opacity .8s, filter .8s; }
+.night-only { opacity: 0; }
+body.night .night-only { opacity: 1; }
+body.night .day-only { opacity: 0; }
+body.night .sky { fill: url(#skyNight); }
+body.night .land { filter: brightness(.45) saturate(.8); }
+body.night .clouds { opacity: .18; }
+
+body.night {
+  --ink: #eef1fb;
+  --muted: #b8c0da;
+  --surface: #283152;
+  background: #1b2350;
+}
+
+body.night .clay { border-color: #3a4573; }
+body.night .topbar { background: rgba(27, 35, 80, .9); }
+body.night .icon-btn { background: #333f6e; }
+body.night .icon-btn svg { stroke: #d6ccff; }
+body.night .icon-btn[aria-pressed="false"] { background: #2a3359; }
+body.night .icon-btn[aria-pressed="false"] svg { stroke: #7a84a8; }
+body.night #btnNight[aria-pressed="true"] svg { stroke: #ffe58a; }
+body.night .level-chip { background: #3a3766; }
+body.night .level-bar, body.night .xp { background: #3a4573; }
+body.night .daily { background: linear-gradient(135deg, #283152, #3d3866); }
+body.night .daily.done { background: linear-gradient(135deg, #283152, #24504a); }
+body.night .streak { background: #45374f; }
+body.night .tip { background: #2c4170; }
+body.night .big-btn.soft { background: #333f6e; color: var(--ink); box-shadow: 0 6px 0 #1f2748, 0 10px 18px rgba(0, 0, 0, .2); }
+body.night .card, body.night .focus-card, body.night .question, body.night .cell.head { color: #23304a; }
+body.night .card { filter: brightness(.92); }
+body.night .eq { color: #23304a; }
+body.night .opt { background: #333f6e; border-color: #3a4573; color: var(--ink); }
+body.night .opt.right { background: #1f5a40; border-color: #3ad08a; }
+body.night .bubble { background: #333f6e; }
+body.night .bubble::after { border-top-color: #333f6e; }
+body.night .hint { color: #cdbfff; }
+body.night .round-label { background: #4d4126; }
+body.night .story { background: linear-gradient(160deg, #283152 55%, #3d3866); }
+body.night .grp { background: rgba(255, 255, 255, .12); color: var(--ink); }
+body.night .story-mika, body.night .level-margo { mix-blend-mode: normal; border-radius: 18px; }
+body.night .cell { background: #333f6e; }
+body.night .cell.line { background: #4a4583; }
+body.night .show-known .cell.known { background: #22573f; }
+body.night .polaroid { background: #283152; }
+body.night .polaroid.locked .lock { background: #333f6e; }
+body.night .result-xp { color: #ffd35c; }
+body.night .unlock { color: #6be3a6; }
+body.night .sync-link { background: #1f2748; border-color: #3a4573; }
+body.night .toast { background: #f1edfc; color: #23304a; }
 
 /* ===== מצב רגוע / הפחתת תנועה ===== */
 body.calm *, body.calm *::before, body.calm *::after {

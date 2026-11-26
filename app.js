@@ -88,7 +88,7 @@
   const KEY = "mika-kefel-v1";
   const DEFAULTS = {
     stars: {}, album: [], daily: { last: null, streak: 0 },
-    sound: true, music: false, calm: null, xp: 0, facts: {},
+    sound: true, music: false, calm: null, night: false, xp: 0, facts: {},
   };
   let state;
   try {
@@ -247,9 +247,10 @@
   }
 
   // ================= מוזיקת רקע רגועה =================
-  // קובץ המנגינה מתנגן בלופ בעוצמה נמוכה, עם כניסה ויציאה הדרגתיות
-  const MUSIC_VOLUME = 0.22;
-  const bgm = new Audio("audio/music.mp3");
+  // קובץ המנגינה (כבר מוקלט בעוצמה נמוכה) מתנגן בלופ, עם כניסה ויציאה הדרגתיות.
+  // באייפד הדפדפן מתעלם משינוי עוצמה, ולכן הקובץ עצמו שקט.
+  const MUSIC_VOLUME = 0.8;
+  const bgm = new Audio("audio/music.mp3?v=6");
   bgm.loop = true;
   bgm.preload = "none";
   bgm.volume = 0;
@@ -259,6 +260,8 @@
     bgmFailed = true;
     if (state.music) startSynth();
   });
+  bgm.addEventListener("playing", () => $("btnMusic").classList.add("playing"));
+  bgm.addEventListener("pause", () => $("btnMusic").classList.remove("playing"));
 
   function fadeTo(target, ms, done) {
     clearInterval(fadeTimer);
@@ -266,15 +269,24 @@
     let i = 0;
     fadeTimer = setInterval(() => {
       i++;
-      bgm.volume = Math.max(0, Math.min(1, from + (target - from) * (i / steps)));
+      try { bgm.volume = Math.max(0, Math.min(1, from + (target - from) * (i / steps))); } catch (e) {}
       if (i >= steps) { clearInterval(fadeTimer); if (done) done(); }
     }, ms / steps);
   }
 
-  function startMusic() {
+  function startMusic(fromUser) {
     if (bgmFailed) return startSynth();
+    clearInterval(fadeTimer);
     const p = bgm.play();
-    if (p && p.catch) p.catch(() => {});
+    if (p && p.catch) {
+      p.catch(() => {
+        if (!fromUser) return;
+        showToast("המוזיקה לא התחילה 🎵 בדקו שהשמע במכשיר פתוח (ובאייפד שמתג ההשתקה כבוי), ולחצו שוב על כפתור המוזיקה.");
+        state.music = false;
+        save();
+        applyToggles();
+      });
+    }
     fadeTo(MUSIC_VOLUME, 1500);
   }
 
@@ -897,23 +909,34 @@
     $("btnSound").setAttribute("aria-pressed", String(!!state.sound));
     $("btnMusic").setAttribute("aria-pressed", String(!!state.music));
     $("btnCalm").setAttribute("aria-pressed", String(!!state.calm));
+    $("btnNight").setAttribute("aria-pressed", String(!!state.night));
     document.body.classList.toggle("calm", !!state.calm);
+    document.body.classList.toggle("night", !!state.night);
+    document.querySelector('meta[name="theme-color"]').content = state.night ? "#1b2350" : "#bfe9ff";
   }
   $("btnSound").onclick = () => { state.sound = !state.sound; save(); applyToggles(); chime(); };
   $("btnMusic").onclick = () => {
     state.music = !state.music;
     save();
     applyToggles();
-    state.music ? startMusic() : stopMusic();
+    state.music ? startMusic(true) : stopMusic();
   };
-  $("btnCalm").onclick = () => { state.calm = !state.calm; save(); applyToggles(); };
+  $("btnCalm").onclick = () => {
+    state.calm = !state.calm;
+    save();
+    applyToggles();
+    showToast(state.calm ? "מצב רגוע: האנימציות כבויות 🌿" : "האנימציות חזרו ✨", 2500);
+  };
+  $("btnNight").onclick = () => { state.night = !state.night; save(); applyToggles(); };
   $("btnFull").onclick = () => {
     if (document.fullscreenElement) document.exitFullscreen();
     else document.documentElement.requestFullscreen?.().catch(() => {});
   };
 
   // הדפדפן מאפשר צליל רק אחרי לחיצה ראשונה
-  document.addEventListener("pointerdown", () => { if (state.music) startMusic(); }, { once: true });
+  document.addEventListener("pointerdown", (e) => {
+    if (state.music && !e.target.closest("#btnMusic")) startMusic(false);
+  }, { once: true });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) stopMusic();
     else if (state.music) startMusic();
@@ -922,7 +945,7 @@
   // ================= מקלדת =================
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
-      for (const id of ["photoModal", "levelModal"]) if (!$(id).hidden) { $(id).hidden = true; return; }
+      for (const id of ["photoModal", "levelModal", "syncModal", "importModal"]) if (!$(id).hidden) { $(id).hidden = true; return; }
       if (current !== "home") show("home");
       return;
     }
@@ -953,9 +976,97 @@
   }
   $("btnBreakDone").onclick = () => { $("breakModal").hidden = true; armBreak(); };
 
+  // ================= הודעה קטנה =================
+  let toastTimer;
+  function showToast(msg, ms = 6000) {
+    const t = $("toast");
+    t.textContent = msg;
+    t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => (t.hidden = true), ms);
+  }
+  $("toast").onclick = () => ($("toast").hidden = true);
+
+  // ================= מעבר בין מכשירים =================
+  // כל ההתקדמות נשמרת בדפדפן של המכשיר. כדי להעביר אותה, יוצרים קישור
+  // שההתקדמות מקודדת בחלק שאחרי ה-#. החלק הזה לא נשלח לשום שרת.
+  const b64enc = (str) => btoa(unescape(encodeURIComponent(str))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const b64dec = (str) => decodeURIComponent(escape(atob(str.replace(/-/g, "+").replace(/_/g, "/"))));
+
+  function exportLink() {
+    const f = {};
+    Object.entries(state.facts).forEach(([k, v]) => (f[k] = [v.box, v.seen, v.right, v.last]));
+    const data = { v: 1, x: state.xp, s: state.stars, a: state.album, d: state.daily, f };
+    return location.origin + location.pathname + "#sync=" + b64enc(JSON.stringify(data));
+  }
+
+  function mergeProgress(d) {
+    state.xp = Math.max(state.xp || 0, d.x || 0);
+    Object.entries(d.s || {}).forEach(([k, v]) => (state.stars[k] = Math.max(state.stars[k] || 0, v)));
+    (d.a || []).forEach((n) => { if (!state.album.includes(n)) state.album.push(n); });
+    if (d.d && d.d.last && (!state.daily.last || d.d.last > state.daily.last ||
+        (d.d.last === state.daily.last && d.d.streak > state.daily.streak))) {
+      state.daily = { last: d.d.last, streak: d.d.streak };
+    }
+    Object.entries(d.f || {}).forEach(([k, arr]) => {
+      const inc = { box: arr[0], seen: arr[1], right: arr[2], last: arr[3] };
+      const cur = state.facts[k];
+      if (!cur || (inc.last || "") > (cur.last || "") || ((inc.last || "") === (cur.last || "") && inc.seen > cur.seen)) {
+        state.facts[k] = inc;
+      }
+    });
+    save();
+  }
+
+  let pendingImport = null;
+  function checkImport() {
+    const m = location.hash.match(/^#sync=([A-Za-z0-9_-]+)$/);
+    if (!m) return;
+    history.replaceState(null, "", location.pathname + location.search);
+    try {
+      pendingImport = JSON.parse(b64dec(m[1]));
+    } catch (e) {
+      showToast("הקישור לא תקין 🙁 נסו ליצור קישור חדש במכשיר השני.");
+      return;
+    }
+    let lv = 1;
+    while (lv < MAX_LEVEL && (pendingImport.x || 0) >= xpForLevel(lv + 1)) lv++;
+    $("importText").innerHTML = `מצאתי התקדמות של מיקה ממכשיר אחר:<br><b>רמה ${lv}</b>, ${(pendingImport.a || []).length} תמונות באלבום, ${Object.keys(pendingImport.f || {}).length} תרגילים בזיכרון.<br>למזג אותה עם מה שיש כאן? שום דבר לא יימחק.`;
+    $("importModal").hidden = false;
+  }
+
+  $("btnImportYes").onclick = () => {
+    if (pendingImport) mergeProgress(pendingImport);
+    pendingImport = null;
+    $("importModal").hidden = true;
+    renderHome();
+    showToast("ההתקדמות נטענה! 🐾", 3000);
+  };
+  $("btnImportNo").onclick = () => { pendingImport = null; $("importModal").hidden = true; };
+
+  $("btnSync").onclick = () => {
+    $("syncLink").value = exportLink();
+    $("syncModal").hidden = false;
+  };
+  $("btnSyncClose").onclick = () => ($("syncModal").hidden = true);
+  $("btnSyncShare").onclick = async () => {
+    const url = $("syncLink").value;
+    if (navigator.share) {
+      try { await navigator.share({ title: "ההתקדמות של מיקה", text: "לוח הכפל של מיקה ומרגו 🐶", url }); return; } catch (e) { if (e.name === "AbortError") return; }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast("הקישור הועתק 📋 עכשיו הדביקו אותו בוואטסאפ ופתחו במכשיר השני.", 4000);
+    } catch (e) {
+      $("syncLink").select();
+      showToast("סמנו את הקישור והעתיקו אותו ידנית.", 4000);
+    }
+  };
+
   // ================= התחלה =================
   if (state.calm === null) state.calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   applyToggles();
   renderHome();
   armBreak();
+  checkImport();
 })();
